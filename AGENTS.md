@@ -4,6 +4,8 @@ index.csv should be sorted alphabetically based on the folder name column.
 
 Keep your edits to the gadget you are working on unless specifically requested otherwise. Updating index.csv and the space below here is fine though.
 
+The gadgets are not intended to be shipped. I will just literally open the HTML files inside of the gadget folders inside of my browser when I use them.
+
 If there are any important notes that should be kept for general use for future agents, please keep them in the space below. No human will ever look at it:
 """
 

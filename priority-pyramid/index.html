@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Priority Pyramid</title>
+<style>
+  :root {
+    --w: min(640px, 92vw, 66vh);
+    --bg: #0a0b12;
+    --text: #eef1ff;
+    --muted: #7982a8;
+    --panel: rgba(255, 255, 255, .05);
+    --line: rgba(255, 255, 255, .07);
+  }
+
+  * { box-sizing: border-box; }
+
+  html, body { height: 100%; }
+
+  body {
+    margin: 0;
+    min-height: 100dvh;
+    padding: 24px 16px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 18px;
+
+    font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    color: var(--text);
+    background:
+      radial-gradient(900px 520px at 50% -12%, rgba(124, 140, 255, .16), transparent 64%),
+      var(--bg);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* ---------- toolbar ---------- */
+
+  .bar {
+    width: var(--w);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .bar h1 {
+    margin: 0;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: .24em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  .spacer { flex: 1; }
+
+  .saved {
+    font-size: 11px;
+    letter-spacing: .08em;
+    color: var(--muted);
+    opacity: 0;
+    transition: opacity .3s;
+  }
+  .saved.show { opacity: 1; }
+
+  button {
+    font: inherit;
+    font-size: 11px;
+    letter-spacing: .08em;
+    padding: 6px 14px;
+    cursor: pointer;
+    color: var(--muted);
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    transition: color .15s, border-color .15s, background .15s;
+  }
+  button:hover {
+    color: #fff;
+    border-color: rgba(124, 140, 255, .5);
+    background: rgba(124, 140, 255, .12);
+  }
+
+  /* ---------- pyramid ---------- */
+  /* One single clip-path defines the silhouette, so the three bands
+     tile perfectly — no seams, no misaligned slopes.               */
+
+  .pyramid {
+    width: var(--w);
+    aspect-ratio: 1 / 1.1;
+    display: flex;
+    flex-direction: column;
+    clip-path: polygon(30% 0, 70% 0, 100% 100%, 0 100%);
+    filter: drop-shadow(0 22px 36px rgba(0, 0, 0, .5));
+  }
+
+  .band {
+    flex: 1;
+    min-height: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .band + .band { border-top: 1px solid rgba(255, 255, 255, .09); }
+
+  .band--top { background: linear-gradient(180deg, #909aff 0%, #6b6ff0 55%, #5a55e6 100%); }
+  .band--mid { background: linear-gradient(180deg, #2c3157, #22263f); }
+  .band--bot { background: linear-gradient(180deg, #1b1f38, #111425); }
+
+  /* ---------- content ---------- */
+
+  .slot {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+  }
+  .slot--main { width: 40%; }
+  .slot--side { width: 58%; }
+  .slot--base { width: 76%; }
+
+  .tag {
+    margin: 0;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: .2em;
+    text-transform: uppercase;
+    color: #7c86b5;
+  }
+
+  .pair {
+    width: 100%;
+    display: flex;
+    gap: 10px;
+  }
+
+  input {
+    width: 100%;
+    min-width: 0;
+    font: inherit;
+    text-align: center;
+    padding: 6px 8px;
+    border: 0;
+    border-radius: 8px;
+    background: transparent;
+    color: inherit;
+    outline: none;
+    transition: background .15s;
+  }
+  input::placeholder { color: currentColor; opacity: .4; }
+
+  .band--top input { color: #fff; font-weight: 700; }
+  .band--top input:focus { background: rgba(255, 255, 255, .18); }
+
+  .band--mid input { color: #dfe4ff; font-weight: 600; }
+  .band--mid input:focus { background: rgba(255, 255, 255, .09); }
+
+  .band--bot input { color: #9aa3cc; }
+  .band--bot input:focus { background: rgba(255, 255, 255, .07); }
+</style>
+</head>
+<body>
+
+  <header class="bar">
+    <h1>Priority Pyramid</h1>
+    <span class="spacer"></span>
+    <span class="saved" id="saved">Saved</span>
+    <button id="reset" type="button">Reset</button>
+  </header>
+
+  <main class="pyramid">
+    <section class="band band--top">
+      <div class="slot slot--main">
+        <input id="main" data-key="main" data-max="30" data-min="12"
+               placeholder="Main project" aria-label="Main project"
+               autocomplete="off" spellcheck="false">
+      </div>
+    </section>
+
+    <section class="band band--mid">
+      <div class="slot slot--side">
+        <input id="side" data-key="side" data-max="22" data-min="10"
+               placeholder="Side project" aria-label="Side project"
+               autocomplete="off" spellcheck="false">
+      </div>
+    </section>
+
+    <section class="band band--bot">
+      <div class="slot slot--base">
+        <p class="tag">Research &amp; experimentation</p>
+        <div class="pair">
+          <input id="res1" data-key="res1" data-max="15" data-min="9"
+                 placeholder="Project #1" aria-label="Research project 1"
+                 autocomplete="off" spellcheck="false">
+          <input id="res2" data-key="res2" data-max="15" data-min="9"
+                 placeholder="Project #2" aria-label="Research project 2"
+                 autocomplete="off" spellcheck="false">
+        </div>
+      </div>
+    </section>
+  </main>
+
+<script>
+  const KEY = 'priority-pyramid.v1';
+  const inputs = Array.from(document.querySelectorAll('input[data-key]'));
+  const savedEl = document.getElementById('saved');
+
+  let savedTimer, saveTimer, resizeTimer;
+
+  /* Hidden span used to measure text so we can size each input to fit. */
+  const meas = document.createElement('span');
+  meas.setAttribute('aria-hidden', 'true');
+  meas.style.cssText = 'position:absolute;left:-9999px;top:0;white-space:pre;visibility:hidden;';
+  document.body.appendChild(meas);
+
+  function autofit(input) {
+    const max = parseFloat(input.dataset.max) || 16;
+    const min = parseFloat(input.dataset.min) || 8;
+    const cs = getComputedStyle(input);
+    const text = input.value || input.placeholder || ' ';
+
+    meas.style.fontFamily = cs.fontFamily;
+    meas.style.fontWeight = cs.fontWeight;
+    meas.style.letterSpacing = cs.letterSpacing;
+    meas.style.fontSize = '100px';
+    meas.textContent = text;
+
+    const perPx = (meas.getBoundingClientRect().width / 100) || 1;
+    const avail = input.clientWidth
+                - parseFloat(cs.paddingLeft)
+                - parseFloat(cs.paddingRight);
+
+    let size = Math.min(max, avail / perPx);
+    if (!isFinite(size) || size < min) size = min;
+
+    input.style.fontSize = size.toFixed(2) + 'px';
+  }
+
+  function autofitAll() {
+    inputs.forEach(autofit);
+  }
+
+  function flashSaved() {
+    savedEl.classList.add('show');
+    clearTimeout(savedTimer);
+    savedTimer = setTimeout(() => savedEl.classList.remove('show'), 1200);
+  }
+
+  function save() {
+    const data = {};
+    inputs.forEach(input => { data[input.dataset.key] = input.value; });
+    try {
+      localStorage.setItem(KEY, JSON.stringify(data));
+      flashSaved();
+    } catch (e) { /* storage unavailable */ }
+  }
+
+  function load() {
+    let data = {};
+    try {
+      data = JSON.parse(localStorage.getItem(KEY) || '{}') || {};
+    } catch (e) { data = {}; }
+    inputs.forEach(input => {
+      if (typeof data[input.dataset.key] === 'string') {
+        input.value = data[input.dataset.key];
+      }
+    });
+  }
+
+  inputs.forEach(input => {
+    input.addEventListener('input', () => {
+      autofit(input);
+      clearTimeout(saveTimer);
+      saveTimer = setTimeout(save, 250);
+    });
+  });
+
+  document.getElementById('reset').addEventListener('click', () => {
+    if (!confirm('Clear all projects from the pyramid?')) return;
+    inputs.forEach(input => { input.value = ''; });
+    try { localStorage.removeItem(KEY); } catch (e) { /* ignore */ }
+    autofitAll();
+    flashSaved();
+  });
+
+  window.addEventListener('resize', () => {
+    clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(autofitAll, 100);
+  });
+
+  load();
+  requestAnimationFrame(autofitAll);
+  if (document.fonts && document.fonts.ready) {
+    document.fonts.ready.then(autofitAll);
+  }
+</script>
+</body>
+</html>
